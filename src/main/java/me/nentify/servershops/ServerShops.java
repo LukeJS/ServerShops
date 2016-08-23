@@ -46,6 +46,8 @@ public class ServerShops {
         Sponge.getGame().getEventManager().registerListeners(this, new BlockEventHandler());
 
         CommandSpec buyShopCommand = CommandSpec.builder()
+                .description(Text.of("Create a buy shop"))
+                .permission("servershops.create.buy")
                 .arguments(
                         GenericArguments.integer(Text.of("price")),
                         GenericArguments.optional(GenericArguments.integer(Text.of("quantity")))
@@ -54,6 +56,8 @@ public class ServerShops {
                 .build();
 
         CommandSpec sellShopCommand = CommandSpec.builder()
+                .description(Text.of("Create a sell shop"))
+                .permission("servershops.create.sell")
                 .arguments(
                         GenericArguments.integer(Text.of("price")),
                         GenericArguments.optional(GenericArguments.integer(Text.of("quantity")))
