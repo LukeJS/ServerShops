@@ -4,25 +4,23 @@ import me.nentify.servershops.ShopType;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.manipulator.immutable.common.AbstractImmutableData;
-import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 public class ImmutableServerShopData extends AbstractImmutableData<ImmutableServerShopData, ServerShopData> {
 
     private ShopType shopType;
-    private String itemId;
-    private int itemMeta;
-    private int price;
+    private ItemStack item;
+    private double price;
     private int quantity;
 
     public ImmutableServerShopData() {
-        this(null, "", 0, 0, 0);
+        this(null, null, 0.0, 0);
     }
 
-    public ImmutableServerShopData(ShopType shopType, String itemId, int itemMeta, int price, int quantity) {
+    public ImmutableServerShopData(ShopType shopType, ItemStack item, double price, int quantity) {
         this.shopType = shopType;
-        this.itemId = itemId;
-        this.itemMeta = itemMeta;
+        this.item = item;
         this.price = price;
         this.quantity = quantity;
     }
@@ -31,15 +29,11 @@ public class ImmutableServerShopData extends AbstractImmutableData<ImmutableServ
         return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.SHOP_TYPE, shopType.toString()).asImmutable();
     }
 
-    public ImmutableValue<String> itemId() {
-        return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.ITEM_ID, itemId).asImmutable();
+    public ImmutableValue<ItemStack> item() {
+        return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.ITEM, item).asImmutable();
     }
 
-    public ImmutableValue<Integer> itemMeta() {
-        return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.ITEM_META, itemMeta).asImmutable();
-    }
-
-    public ImmutableValue<Integer> price() {
+    public ImmutableValue<Double> price() {
         return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.PRICE, price).asImmutable();
     }
 
@@ -52,11 +46,8 @@ public class ImmutableServerShopData extends AbstractImmutableData<ImmutableServ
         registerFieldGetter(ServerShopKeys.SHOP_TYPE, () -> shopType);
         registerKeyValue(ServerShopKeys.SHOP_TYPE, this::shopType);
 
-        registerFieldGetter(ServerShopKeys.ITEM_ID, () -> itemId);
-        registerKeyValue(ServerShopKeys.ITEM_ID, this::itemId);
-
-        registerFieldGetter(ServerShopKeys.ITEM_META, () -> itemMeta);
-        registerKeyValue(ServerShopKeys.ITEM_META, this::itemMeta);
+        registerFieldGetter(ServerShopKeys.ITEM, () -> item);
+        registerKeyValue(ServerShopKeys.ITEM, this::item);
 
         registerFieldGetter(ServerShopKeys.PRICE, () -> price);
         registerKeyValue(ServerShopKeys.PRICE, this::price);
@@ -67,7 +58,7 @@ public class ImmutableServerShopData extends AbstractImmutableData<ImmutableServ
 
     @Override
     public ServerShopData asMutable() {
-        return new ServerShopData(shopType, itemId, itemMeta, price, quantity);
+        return new ServerShopData(shopType, item, price, quantity);
     }
 
     @Override
@@ -79,19 +70,13 @@ public class ImmutableServerShopData extends AbstractImmutableData<ImmutableServ
     public DataContainer toContainer() {
         return super.toContainer()
                 .set(ServerShopKeys.SHOP_TYPE, shopType.toString())
-                .set(ServerShopKeys.ITEM_ID, itemId)
-                .set(ServerShopKeys.ITEM_META, itemMeta)
+                .set(ServerShopKeys.ITEM, item)
                 .set(ServerShopKeys.PRICE, price)
                 .set(ServerShopKeys.QUANTITY, quantity);
     }
 
     @Override
     public int getContentVersion() {
-        return 1;
-    }
-
-    @Override
-    public boolean supports(BaseValue<?> baseValue) {
-        return super.supports(baseValue);
+        return 2;
     }
 }

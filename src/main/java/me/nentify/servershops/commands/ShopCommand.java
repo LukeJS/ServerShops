@@ -10,10 +10,10 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.service.economy.Currency;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.blockray.BlockRay;
@@ -21,6 +21,7 @@ import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public class ShopCommand implements CommandExecutor {
@@ -33,7 +34,7 @@ public class ShopCommand implements CommandExecutor {
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        int price = args.<Integer>getOne("price").get();
+        double price = args.<Double>getOne("price").get();
         Optional<Integer> quantityOptional = args.getOne("quantity");
 
         if (src instanceof Player) {
@@ -54,26 +55,23 @@ public class ShopCommand implements CommandExecutor {
                 if (tileEntity.isPresent() && tileEntity.get() instanceof Sign) {
                     Sign sign = (Sign) tileEntity.get();
 
-                    Optional<ItemStack> stackOptional = player.getItemInHand(HandTypes.MAIN_HAND);
+                    Optional<ItemStack> itemStackOptional = player.getItemInHand(HandTypes.MAIN_HAND);
 
-                    if (stackOptional.isPresent()) {
-                        ItemStack stack = stackOptional.get();
-
-                        String itemId = stack.getItem().getId();
-                        int meta = stack.toContainer().getInt(DataQuery.of("UnsafeDamage")).get();
+                    if (itemStackOptional.isPresent()) {
+                        ItemStack itemStack = itemStackOptional.get();
 
                         int quantity;
 
                         if (quantityOptional.isPresent())
                             quantity = quantityOptional.get();
                         else
-                            quantity = stack.getQuantity();
+                            quantity = itemStack.getQuantity();
 
-                        ServerShopData serverShopData = new ServerShopData(shopType, itemId, meta, price, quantity);
+                        ServerShopData serverShopData = new ServerShopData(shopType, itemStack, price, quantity);
                         sign.offer(serverShopData);
 
-                        String currencySymbol = ServerShops.instance.economyService.getDefaultCurrency().getSymbol().toPlain();
-                        player.sendMessage(Text.of(TextColors.GREEN, "Successfully created " + shopType.toString().toLowerCase() + " shop for " + quantity + " " + stack.getItem().getName() + " for " + currencySymbol + price));
+                        Currency defaultCurrency = ServerShops.instance.economyService.getDefaultCurrency();
+                        player.sendMessage(Text.of(TextColors.GREEN, "Successfully created ", shopType.toString().toLowerCase(), " shop for ", quantity, " ", itemStack, " for ", defaultCurrency.format(BigDecimal.valueOf(price))));
                     }
                 } else {
                     player.sendMessage(Text.of(TextColors.RED, "You are not looking at a sign"));

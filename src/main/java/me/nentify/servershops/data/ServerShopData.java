@@ -7,27 +7,25 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.manipulator.mutable.common.AbstractData;
 import org.spongepowered.api.data.merge.MergeFunction;
-import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.data.value.mutable.Value;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 import java.util.Optional;
 
 public class ServerShopData extends AbstractData<ServerShopData, ImmutableServerShopData> {
 
     private ShopType shopType;
-    private String itemId;
-    private int itemMeta;
-    private int price;
+    private ItemStack item;
+    private double price;
     private int quantity;
 
     public ServerShopData() {
-        this(null, "", 0, 0, 0);
+        this(null, null, 0.0, 0);
     }
 
-    public ServerShopData(ShopType shopType, String itemId, int itemMeta, int price, int quantity) {
+    public ServerShopData(ShopType shopType, ItemStack item, double price, int quantity) {
         this.shopType = shopType;
-        this.itemId = itemId;
-        this.itemMeta = itemMeta;
+        this.item = item;
         this.price = price;
         this.quantity = quantity;
     }
@@ -36,15 +34,11 @@ public class ServerShopData extends AbstractData<ServerShopData, ImmutableServer
         return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.SHOP_TYPE, shopType.toString());
     }
 
-    public Value<String> itemId() {
-        return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.ITEM_ID, itemId);
+    public Value<ItemStack> item() {
+        return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.ITEM, item);
     }
 
-    public Value<Integer> itemMeta() {
-        return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.ITEM_META, itemMeta);
-    }
-
-    public Value<Integer> price() {
+    public Value<Double> price() {
         return Sponge.getRegistry().getValueFactory().createValue(ServerShopKeys.PRICE, price);
     }
 
@@ -58,13 +52,9 @@ public class ServerShopData extends AbstractData<ServerShopData, ImmutableServer
         registerFieldSetter(ServerShopKeys.SHOP_TYPE, value -> shopType = ShopType.valueOf(value));
         registerKeyValue(ServerShopKeys.SHOP_TYPE, this::shopType);
 
-        registerFieldGetter(ServerShopKeys.ITEM_ID, () -> itemId);
-        registerFieldSetter(ServerShopKeys.ITEM_ID, value -> itemId = value);
-        registerKeyValue(ServerShopKeys.ITEM_ID, this::itemId);
-
-        registerFieldGetter(ServerShopKeys.ITEM_META, () -> itemMeta);
-        registerFieldSetter(ServerShopKeys.ITEM_META, value -> itemMeta = value);
-        registerKeyValue(ServerShopKeys.ITEM_META, this::itemMeta);
+        registerFieldGetter(ServerShopKeys.ITEM, () -> item);
+        registerFieldSetter(ServerShopKeys.ITEM, value -> item = value);
+        registerKeyValue(ServerShopKeys.ITEM, this::item);
 
         registerFieldGetter(ServerShopKeys.PRICE, () -> price);
         registerFieldSetter(ServerShopKeys.PRICE, value -> price = value);
@@ -83,8 +73,7 @@ public class ServerShopData extends AbstractData<ServerShopData, ImmutableServer
     @Override
     public Optional<ServerShopData> from(DataContainer container) {
         if (!container.contains(
-                ServerShopKeys.ITEM_ID.getQuery(),
-                ServerShopKeys.ITEM_META.getQuery(),
+                ServerShopKeys.ITEM.getQuery(),
                 ServerShopKeys.PRICE.getQuery(),
                 ServerShopKeys.QUANTITY.getQuery(),
                 ServerShopKeys.SHOP_TYPE.getQuery()
@@ -92,28 +81,21 @@ public class ServerShopData extends AbstractData<ServerShopData, ImmutableServer
             return Optional.empty();
 
         this.shopType = ShopType.valueOf(container.getString(ServerShopKeys.SHOP_TYPE.getQuery()).get());
-        this.itemId = container.getString(ServerShopKeys.ITEM_ID.getQuery()).get();
-        this.itemMeta = container.getInt(ServerShopKeys.ITEM_META.getQuery()).get();
-        this.price = container.getInt(ServerShopKeys.PRICE.getQuery()).get();
+        this.item = container.getSerializable(ServerShopKeys.ITEM.getQuery(), ItemStack.class).get();
+        this.price = container.getDouble(ServerShopKeys.PRICE.getQuery()).get();
         this.quantity = container.getInt(ServerShopKeys.QUANTITY.getQuery()).get();
 
         return Optional.of(this);
     }
 
     @Override
-    public boolean supports(BaseValue<?> baseValue) {
-        // i want to support signs
-        return super.supports(baseValue);
-    }
-
-    @Override
     public ServerShopData copy() {
-        return new ServerShopData(shopType, itemId, itemMeta, price, quantity);
+        return new ServerShopData(shopType, item, price, quantity);
     }
 
     @Override
     public ImmutableServerShopData asImmutable() {
-        return new ImmutableServerShopData(shopType, itemId, itemMeta, price, quantity);
+        return new ImmutableServerShopData(shopType, item, price, quantity);
     }
 
     @Override
@@ -123,15 +105,14 @@ public class ServerShopData extends AbstractData<ServerShopData, ImmutableServer
 
     @Override
     public int getContentVersion() {
-        return 1;
+        return 2;
     }
 
     @Override
     public DataContainer toContainer() {
         return super.toContainer()
                 .set(ServerShopKeys.SHOP_TYPE, shopType.toString())
-                .set(ServerShopKeys.ITEM_ID, itemId)
-                .set(ServerShopKeys.ITEM_META, itemMeta)
+                .set(ServerShopKeys.ITEM, item)
                 .set(ServerShopKeys.PRICE, price)
                 .set(ServerShopKeys.QUANTITY, quantity);
     }
@@ -140,8 +121,7 @@ public class ServerShopData extends AbstractData<ServerShopData, ImmutableServer
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("shopType", shopType)
-                .add("itemId", itemId)
-                .add("itemMeta", itemMeta)
+                .add("item", item)
                 .add("price", price)
                 .add("quantity", quantity)
                 .toString();

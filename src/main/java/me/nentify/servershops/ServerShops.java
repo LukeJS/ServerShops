@@ -23,7 +23,7 @@ public class ServerShops {
 
     public static final String PLUGIN_ID = "servershops";
     public static final String PLUGIN_NAME = "Server Shops";
-    public static final String PLUGIN_VERSION = "1.0.0";
+    public static final String PLUGIN_VERSION = "1.1.0";
 
     public static ServerShops instance;
 
@@ -49,7 +49,7 @@ public class ServerShops {
                 .description(Text.of("Create a buy shop"))
                 .permission("servershops.create.buy")
                 .arguments(
-                        GenericArguments.integer(Text.of("price")),
+                        GenericArguments.doubleNum(Text.of("price")),
                         GenericArguments.optional(GenericArguments.integer(Text.of("quantity")))
                 )
                 .executor(new ShopCommand(ShopType.BUY))
@@ -59,7 +59,7 @@ public class ServerShops {
                 .description(Text.of("Create a sell shop"))
                 .permission("servershops.create.sell")
                 .arguments(
-                        GenericArguments.integer(Text.of("price")),
+                        GenericArguments.doubleNum(Text.of("price")),
                         GenericArguments.optional(GenericArguments.integer(Text.of("quantity")))
                 )
                 .executor(new ShopCommand(ShopType.SELL))
