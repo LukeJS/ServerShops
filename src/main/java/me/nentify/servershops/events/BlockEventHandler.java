@@ -5,6 +5,7 @@ import me.nentify.servershops.ShopType;
 import me.nentify.servershops.data.ServerShopData;
 import org.spongepowered.api.block.tileentity.Sign;
 import org.spongepowered.api.block.tileentity.TileEntity;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -39,6 +40,11 @@ public class BlockEventHandler {
                 Optional<ServerShopData> serverShopDataOptional = sign.get(ServerShopData.class);
 
                 if (serverShopDataOptional.isPresent()) {
+                    if (player.get(Keys.IS_SNEAKING).orElse(false)) {
+                        player.sendMessage(Text.of(TextColors.RED, "You can not use this sign while sneaking"));
+                        return;
+                    }
+
                     ServerShopData serverShopData = serverShopDataOptional.get();
 
                     ShopType shopType = serverShopData.getShopType();
