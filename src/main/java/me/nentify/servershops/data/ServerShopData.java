@@ -98,7 +98,6 @@ public class ServerShopData extends AbstractData<ServerShopData, ImmutableServer
         return new ImmutableServerShopData(shopType, item, price, quantity);
     }
 
-    @Override
     public int compareTo(ServerShopData o) {
         return 0;
     }
