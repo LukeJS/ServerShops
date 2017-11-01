@@ -40,10 +40,11 @@ public class ShopCommand implements CommandExecutor {
         if (src instanceof Player) {
             Player player = (Player) src;
 
-            BlockRay<World> blockRay = BlockRay.from(player)
-                    .blockLimit(100)
-                    .filter(BlockRay.continueAfterFilter(BlockRay.onlyAirFilter(), 1))
-                    .build();
+//            BlockRay<World> blockRay = BlockRay.from(player)
+//                    .blockLimit(100)
+//                    .filter(BlockRay.continueAfterFilter(BlockRay.onlyAirFilter(), 1))
+//                    .build();
+            BlockRay<World> blockRay = BlockRay.from(player).distanceLimit(100).stopFilter(BlockRay.continueAfterFilter(BlockRay.onlyAirFilter(), 1)).build();
 
             Optional<BlockRayHit<World>> hitOptional = blockRay.end();
 
